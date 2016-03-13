@@ -4,7 +4,7 @@
   "Remove lines marked for deletion"
   (interactive)
   (let ((search (concat comment-start
-                        (if (string-match " \'" comment-start) "DEL:" " DEL:"))))
+                        (if (string= " " (substring comment-start -1)) "DEL:" " DEL:"))))
     (save-excursion
       (beginning-of-buffer)
       (while (re-search-forward (regexp-quote search) nil t)
