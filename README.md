@@ -19,6 +19,10 @@ the point into acount. Commenting out lines of code is faster.
 Commented lines can be marked for later deletion and then all removed
 with a single command.
 
+## Demonstration
+
+![Recording of smart-comment](/demo.gif?raw=true)
+
 ## Installation
 
 Put `smart-comment.el` somewhere in you load path.
