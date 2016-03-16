@@ -37,10 +37,10 @@
 (defun smart-comment-cleanup ()
   "Remove lines marked for deletion"
   (interactive "*")
-  (let ((search (smart-comment-mark)))
+  (let ((search (regexp-quote (smart-comment-mark))))
     (save-excursion
       (beginning-of-buffer)
-      (while (re-search-forward (regexp-quote search) nil t)
+      (while (re-search-forward search nil t)
         (kill-whole-line)))))
 
 ;;;###autoload
@@ -55,7 +55,7 @@
   (interactive "*r\nP")
   (save-excursion
     (goto-char beg)
-    (dotimes (i (count-lines beg end))
+    (while (< (point) end)
      (insert smart-comment-mark-string " ")
      (forward-line)
      (back-to-indentation)
@@ -67,7 +67,17 @@
   "Comment or uncomment a region"
   (interactive "*r\nP")
   (if (= 4 (prefix-numeric-value arg)) (smart-comment-mark-region beg end arg)
-    (comment-or-uncomment-region beg end arg)))
+    (comment-normalize-vars)
+    (if (not (comment-only-p beg end))
+        (comment-region beg end arg)
+      (let ((search (regexp-quote (smart-comment-mark)))
+            (len (+ 1 (length smart-comment-mark-string))))
+        (save-excursion
+          (goto-char beg)
+          (while (re-search-forward search end t)
+            (delete-backward-char len)
+            (setq end (- end len))))
+        (uncomment-region beg end arg)))))
 
 ;;;###autoload
 (defun smart-comment-line (arg)
