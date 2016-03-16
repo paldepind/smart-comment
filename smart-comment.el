@@ -1,4 +1,4 @@
-;;; -*- lexical-binding: t; -*-
+;;; smart-comment.el --- smarter commenting -*- lexical-binding: t; -*-
 
 ;; Smart comment
 
@@ -53,10 +53,14 @@
 (defun smart-comment-mark-region (beg end arg)
   "Mark a region for deletion"
   (interactive "*r\nP")
-  (let ((orig-comment-start comment-start))
-    (setq comment-start (smart-comment-mark))
-    (comment-or-uncomment-region beg end)
-    (setq comment-start orig-comment-start)))
+  (save-excursion
+    (goto-char beg)
+    (dotimes (i (count-lines beg end))
+     (insert smart-comment-mark-string " ")
+     (forward-line)
+     (back-to-indentation)
+     (setq end (+ end (length smart-comment-mark-string) 1))))
+  (comment-or-uncomment-region beg end))
 
 ;;;###autoload
 (defun smart-comment-region (beg end arg)
