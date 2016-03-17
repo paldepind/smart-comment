@@ -93,7 +93,7 @@
   "Mark a region for deletion"
   (interactive "*r\nP")
   (let ((lines (count-lines beg end)))
-    (comment-or-uncomment-region beg end)
+    (comment-region beg end)
     (save-excursion
       (goto-char beg)
       (dotimes (i lines)
