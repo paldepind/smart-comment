@@ -1,6 +1,43 @@
 ;;; smart-comment.el --- smarter commenting -*- lexical-binding: t; -*-
 
-;; Smart comment
+;; Copyright (C) 2016 Simon Friis Vindum
+
+;; Author: Simon Friis Vindum <simon@vindum.io>
+;; Keywords: lisp
+;; Version: 0.0.1
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Code gets rewritten when refactoring to accomidate for new features or
+;; when fixing bugs. An approach used by many developers is to disable a
+;; piece of code with comments, then rewrite an improved version below,
+;; test that is works and then delete the commented code. smart-comment
+;; makes this and similair workflows much swifter.
+
+;; smart-comment is implemented on top of the commenting functions built
+;; in to Emacs. It is meant to replace `comment-dwim` as the function you
+;; bind to `M-;`.
+
+;; It triggers different comment actions taking the current location of
+;; the point into acount. Commenting out lines of code is faster.
+;; Commented lines can be marked for later deletion and then all removed
+;; with a single command.
+
+
+;;; Code:
 
 ;;* Customization
 (defgroup smart-comment nil
@@ -76,8 +113,8 @@
           (goto-char beg)
           (while (re-search-forward search end t)
             (delete-backward-char len)
-            (setq end (- end len))))
-        (uncomment-region beg end arg)))))
+            (setq end (- end len)))))
+      (uncomment-region beg end arg))))
 
 ;;;###autoload
 (defun smart-comment-line (arg)
@@ -100,3 +137,4 @@
         (t (funcall smart-comment-mid-action arg))))
 
 (provide 'smart-comment)
+;;; smart-comment.el ends here
