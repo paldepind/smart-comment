@@ -54,7 +54,7 @@
   "Mark a region for deletion"
   (interactive "*r\nP")
   (save-excursion
-    (goto-char beg)
+    (goto-char beg) (skip-chars-forward " \t\n\r")
     (while (< (point) end)
      (insert smart-comment-mark-string " ")
      (forward-line)
