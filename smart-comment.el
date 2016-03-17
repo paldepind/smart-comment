@@ -61,10 +61,12 @@
   "String used to indicate that a line is marked for removal"
   :type 'string)
 
-(defun smart-comment-mark ()
+(defun smart-comment-comment-end ()
   (concat comment-start
-          (if (string= " " (substring comment-start -1)) "" " ")
-          smart-comment-mark-string))
+          (if (string= " " (substring comment-start -1)) "" " ")))
+
+(defun smart-comment-mark ()
+  (concat (smart-comment-comment-end) smart-comment-mark-string))
 
 (defun smart-comment-is-at-beg ()
   (let ((orig-point (point)))
@@ -90,14 +92,14 @@
 (defun smart-comment-mark-region (beg end arg)
   "Mark a region for deletion"
   (interactive "*r\nP")
-  (save-excursion
-    (goto-char beg) (skip-chars-forward " \t\n\r")
-    (while (< (point) end)
-     (insert smart-comment-mark-string " ")
-     (forward-line)
-     (back-to-indentation)
-     (setq end (+ end (length smart-comment-mark-string) 1))))
-  (comment-or-uncomment-region beg end))
+  (let ((lines (count-lines beg end)))
+    (comment-or-uncomment-region beg end)
+    (save-excursion
+      (goto-char beg)
+      (dotimes (i lines)
+        (if (search-forward (smart-comment-comment-end))
+            (insert smart-comment-mark-string " "))
+        (forward-line)))))
 
 ;;;###autoload
 (defun smart-comment-region (beg end arg)
@@ -107,13 +109,13 @@
     (comment-normalize-vars)
     (if (not (comment-only-p beg end))
         (comment-region beg end arg)
-      (let ((search (regexp-quote (smart-comment-mark)))
-            (len (+ 1 (length smart-comment-mark-string))))
+      (let ((len (+ 1 (length smart-comment-mark-string))))
         (save-excursion
           (goto-char beg)
-          (while (re-search-forward search end t)
+          (while (search-forward (smart-comment-mark) end t)
             (delete-backward-char len)
-            (setq end (- end len)))))
+            (setq end (- end len))
+            (forward-line))))
       (uncomment-region beg end arg))))
 
 ;;;###autoload
