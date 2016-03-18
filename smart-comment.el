@@ -93,19 +93,23 @@
   "Mark a region for deletion"
   (interactive "*r\nP")
   (let ((lines (count-lines beg end)))
-    (comment-region beg end)
+    (comment-normalize-vars)
+    (unless (comment-only-p beg end)
+      (comment-region beg end))
     (save-excursion
       (goto-char beg)
       (dotimes (i lines)
-        (if (search-forward (smart-comment-comment-end))
+        (when (search-forward (smart-comment-comment-end))
+          (if (looking-at smart-comment-mark-string)
+              (delete-forward-char 2)
             (insert smart-comment-mark-string " "))
-        (forward-line)))))
+        (forward-line))))))
 
 ;;;###autoload
 (defun smart-comment-region (beg end arg)
   "Comment or uncomment a region"
   (interactive "*r\nP")
-  (if (= 4 (prefix-numeric-value arg)) (smart-comment-mark-region beg end arg)
+  (if (= 4 (prefix-numeric-value arg)) (smart-comment-mark-region beg end arg) 
     (comment-normalize-vars)
     (if (not (comment-only-p beg end))
         (comment-region beg end arg)
@@ -118,7 +122,7 @@
               (delete-backward-char len)
               (setq end (- end len)))
             (forward-line))))
-      (uncomment-regionb eg end arg))))
+      (uncomment-region beg end arg))))
 
 ;;;###autoload
 (defun smart-comment-line (arg)
