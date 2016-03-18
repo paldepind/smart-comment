@@ -109,14 +109,16 @@
     (comment-normalize-vars)
     (if (not (comment-only-p beg end))
         (comment-region beg end arg)
-      (let ((len (+ 1 (length smart-comment-mark-string))))
+      (let ((len (+ 1 (length smart-comment-mark-string)))
+            (lines (count-lines beg end)))
         (save-excursion
           (goto-char beg)
-          (while (search-forward (smart-comment-mark) end t)
-            (delete-backward-char len)
-            (setq end (- end len))
+          (dotimes (i lines)
+            (when (search-forward (smart-comment-mark) nil t)
+              (delete-backward-char len)
+              (setq end (- end len)))
             (forward-line))))
-      (uncomment-region beg end arg))))
+      (uncomment-regionb eg end arg))))
 
 ;;;###autoload
 (defun smart-comment-line (arg)
