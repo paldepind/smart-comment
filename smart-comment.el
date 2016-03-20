@@ -72,6 +72,30 @@
   (let ((orig-point (point)))
     (save-excursion (back-to-indentation) (<= orig-point (point)))))
 
+(defun smart-comment-mark-line ()
+  (interactive "*")
+  (save-excursion
+    (beginning-of-line)
+    (when (search-forward (smart-comment-comment-end) (line-end-position) t)
+      (insert smart-comment-mark-string " "))))
+
+(defun smart-comment-remove-mark-line ()
+  (interactive "*")
+  (save-excursion
+    (beginning-of-line)
+    (when (search-forward (smart-comment-comment-end) (line-end-position) t)
+      (when (looking-at smart-comment-mark-string)
+        (delete-forward-char 2)))))
+
+(defun smart-comment-toggle-mark-line ()
+  (interactive "*")
+  (let ((end (line-end-position)))
+    (beginning-of-line)
+    (when (search-forward (smart-comment-comment-end))
+      (if (looking-at smart-comment-mark-string)
+          (delete-forward-char 2)
+        (insert smart-comment-mark-string " ")))))
+
 ;;;###autoload
 (defun smart-comment-cleanup ()
   "Remove lines marked for deletion"
@@ -99,11 +123,8 @@
     (save-excursion
       (goto-char beg)
       (dotimes (i lines)
-        (when (search-forward (smart-comment-comment-end))
-          (if (looking-at smart-comment-mark-string)
-              (delete-forward-char 2)
-            (insert smart-comment-mark-string " "))
-        (forward-line))))))
+        (smart-comment-toggle-mark-line)
+        (forward-line)))))
 
 ;;;###autoload
 (defun smart-comment-region (beg end arg)
@@ -118,7 +139,7 @@
         (save-excursion
           (goto-char beg)
           (dotimes (i lines)
-            (when (search-forward (smart-comment-mark) nil t)
+            (when (search-forward (smart-comment-mark) (line-end-position) t)
               (delete-backward-char len)
               (setq end (- end len)))
             (forward-line))))
