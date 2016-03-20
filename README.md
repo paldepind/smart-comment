@@ -49,7 +49,7 @@ choosing. This describes the default behaviour.
 
 Pressing `M-;` when the cursor is at the end of a line inserts a
 comment at the end of the line. This is the same as the default
-behaviour.
+behaviour of `M-;`.
 
 Pressing `M-;` when the cursor is not at the end of the line comments
 out the line. If a universal argument is passed the line is also
@@ -57,6 +57,10 @@ marked for deletion. I.e. `C-u M-;` marks a line for deletion.
 
 Passing two universal arguments, i.e. `C-u C-u M-;` deletes all lines
 marked for deletion.
+
+`smart-comment` tries to be smart about what it does. For instance
+adding a mark to a line that is already marked will remove the mark
+instead.
 
 ## `smart-comment`
 
@@ -76,3 +80,8 @@ current position on the line.
 If the region is active `smart-comment` calls `smart-comment-region`.
 When invoked with two universal arguments it calls
 `smart-comment-cleanup` which deletes all lines marked for deletion.
+
+
+## Thanks
+
+Thanks to @limemloh for bug finding and feedback.
