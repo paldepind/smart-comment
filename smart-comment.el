@@ -58,17 +58,20 @@
   :type 'function)
 
 (defcustom smart-comment-mark-string "❌"
-  "String used to indicate that a line is marked for removal"
+  "String used to indicate that a line is marked for removal."
   :type 'string)
 
-(defun smart-comment-comment-end ()
+(defun smart-comment--comment-end ()
+  "Return string that match the ending of a comment."
   (concat comment-start
           (if (string= " " (substring comment-start -1)) "" " ")))
 
-(defun smart-comment-mark ()
-  (concat (smart-comment-comment-end) smart-comment-mark-string))
+(defun smart-comment--mark ()
+  "Return string that match a marker after a comment."
+  (concat (smart-comment--comment-end) smart-comment-mark-string))
 
 (defun smart-comment-is-at-beg ()
+  "Is point at the beginning of a line."
   (let ((orig-point (point)))
     (save-excursion (back-to-indentation) (<= orig-point (point)))))
 
@@ -76,14 +79,14 @@
   (interactive "*")
   (save-excursion
     (beginning-of-line)
-    (when (search-forward (smart-comment-comment-end) (line-end-position) t)
+    (when (search-forward (smart-comment--comment-end) (line-end-position) t)
       (insert smart-comment-mark-string " "))))
 
 (defun smart-comment-remove-mark-line ()
   (interactive "*")
   (save-excursion
     (beginning-of-line)
-    (when (search-forward (smart-comment-comment-end) (line-end-position) t)
+    (when (search-forward (smart-comment--comment-end) (line-end-position) t)
       (when (looking-at smart-comment-mark-string)
         (delete-forward-char 2)))))
 
@@ -91,30 +94,29 @@
   (interactive "*")
   (let ((end (line-end-position)))
     (beginning-of-line)
-    (when (search-forward (smart-comment-comment-end))
+    (when (search-forward (smart-comment--comment-end))
       (if (looking-at smart-comment-mark-string)
           (delete-forward-char 2)
         (insert smart-comment-mark-string " ")))))
 
 ;;;###autoload
 (defun smart-comment-cleanup ()
-  "Remove lines marked for deletion"
+  "Remove lines marked for deletion."
   (interactive "*")
-  (let ((search (regexp-quote (smart-comment-mark))))
-    (save-excursion
-      (beginning-of-buffer)
-      (while (re-search-forward search nil t)
-        (kill-whole-line)))))
+  (save-excursion
+    (beginning-of-buffer)
+    (while (search-forward (smart-comment--mark) nil t)
+      (kill-whole-line))))
 
 ;;;###autoload
 (defun smart-comment-mark-line (arg)
-  "Mark a line for deletion"
+  "Mark a line for deletion. ARG is ignored."
   (interactive "*P")
   (smart-comment-line 4))
 
 ;;;###autoload
 (defun smart-comment-mark-region (beg end arg)
-  "Mark a region for deletion"
+  "Mark a region from BEG to END for deletion. ARG is ignored."
   (interactive "*r\nP")
   (let ((lines (count-lines beg end)))
     (comment-normalize-vars)
@@ -128,9 +130,9 @@
 
 ;;;###autoload
 (defun smart-comment-region (beg end arg)
-  "Comment or uncomment a region"
+  "Comment or uncomment a region from BEG to END. ARG is ignored."
   (interactive "*r\nP")
-  (if (= 4 (prefix-numeric-value arg)) (smart-comment-mark-region beg end arg) 
+  (if (= 4 (prefix-numeric-value arg)) (smart-comment-mark-region beg end arg)
     (comment-normalize-vars)
     (if (not (comment-only-p beg end))
         (comment-region beg end arg)
@@ -139,7 +141,7 @@
         (save-excursion
           (goto-char beg)
           (dotimes (i lines)
-            (when (search-forward (smart-comment-mark) (line-end-position) t)
+            (when (search-forward (smart-comment--mark) (line-end-position) t)
               (delete-backward-char len)
               (setq end (- end len)))
             (forward-line))))
@@ -147,13 +149,16 @@
 
 ;;;###autoload
 (defun smart-comment-line (arg)
-  "Comment or uncomment a line"
+  "Comment or uncomment a line. ARG is ignored."
   (interactive "*P")
   (smart-comment-region (line-beginning-position) (line-end-position) arg))
 
 ;;;###autoload
 (defun smart-comment (arg)
-  "Smart commenting"
+  "Smart commenting based on the location of point on line.
+A single ARG is passed along to the function being invoked. Two
+universal arguments invoke `smart-comment-cleanup' which deletes
+all lines marked for deletion."
   (interactive "*P")
   (cond ((= 16 (prefix-numeric-value arg))
          (smart-comment-cleanup))
