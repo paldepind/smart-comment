@@ -25,7 +25,7 @@ with a single command.
 
 ## Installation
 
-Put `smart-comment.el` somewhere in you load path.
+Install from MELPA or put `smart-comment.el` somewhere in you load path.
 
 ```lisp
 (add-to-list 'load-path "~/emacs.d")
@@ -33,19 +33,17 @@ Put `smart-comment.el` somewhere in you load path.
 (global-set-key (kbd "M-;") 'smart-comment)
 ```
 
-Wit use-package.
+With use-package.
 
 ```lisp
 (use-package smart-comment
-  :ensure nil
-  :load-path "~/path/to/smart-comment"
   :bind ("M-;" . smart-comment))
 ```
 
 ## Tutorial
 
 You should have `smart-comment` bound to `M-;` or another key of your
-choosing. This describes the default behaviour.
+choosing. The default behaviour is described below.
 
 Pressing `M-;` when the cursor is at the end of a line inserts a
 comment at the end of the line. This is the same as the default
@@ -84,4 +82,5 @@ When invoked with two universal arguments it calls
 
 ## Thanks
 
-Thanks to @limemloh for bug finding and feedback.
+Thanks to [@limemloh](https://github.com/limemloh/) for bug finding
+and feedback.
